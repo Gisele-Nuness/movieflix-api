@@ -83,6 +83,28 @@ app.put('/movies/:id', async (req, res) => {
 
 });
 
+// DELETAR UM FILME EXISTENTE
+app.delete('/movies/:id', async (req, res) => {
+
+  try {
+    const id = Number(req.params.id);
+
+    const movie = await prisma.movies.findUnique({ // Verifica se o filme existe no banco de dados
+      where: { id }
+    });
+
+    if (!movie) {
+      return res.status(404).send({ message: 'Filme não encontrado.' });
+    }
+
+    await prisma.movies.delete({ where: { id } }); // Deleta um filme do banco de dados DELETE 
+
+  } catch (error) {
+    return res.status(500).send({ error: 'Erro ao deletar o filme.' });
+  }
+  res.status(200).send({ message: 'Filme deletado com sucesso!' });
+
+});
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta http://localhost:${port}`);
