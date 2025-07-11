@@ -6,7 +6,15 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.get('/movies', async(req, res) => {
-  const movies = await prisma.movies.findMany();
+  const movies = await prisma.movies.findMany({
+    orderBy: {
+      title: 'asc'
+    },
+    include: {
+      genres: true,
+      languages: true
+    }
+  });
   res.json(movies);
 });
 
