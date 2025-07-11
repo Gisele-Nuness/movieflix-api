@@ -7,8 +7,9 @@ const prisma = new PrismaClient();
 
 app.use(express.json()); // Middleware para interpretar JSON no corpo das requisições
 
-app.get('/movies', async(req, res) => {
-  const movies = await prisma.movies.findMany({ //select no banco de dados *from movies
+// APRESENTAR OS FILMES CADASTRADOS
+app.get('/movies', async (req, res) => {
+  const movies = await prisma.movies.findMany({ //select no banco de dados *from movies SELECT
     orderBy: { // Ordena os filmes pelo título em ordem ascendente
       title: 'asc'
     },
@@ -20,23 +21,24 @@ app.get('/movies', async(req, res) => {
   res.json(movies);
 });
 
-app.post('/movies', async(req, res) => {
+// CRIAR UM NOVO FILME
+app.post('/movies', async (req, res) => {
 
   const { title, genre_id, language_id, oscar_count, release_date } = req.body;
-  
+
   try {
 
     //Verificar no banco se já existe um filme com o mesmo título
 
     const movieWithSameTitle = await prisma.movies.findFirst({
-      where: { title: { equals: title, mode: 'insensitive'} },
+      where: { title: { equals: title, mode: 'insensitive' } },
     });
 
-    if( movieWithSameTitle ) {
+    if (movieWithSameTitle) {
       return res.status(409).send({ message: 'Já existe um filme com esse título.' });
     }
 
-    await prisma.movies.create({ // Insere um novo filme no banco de dados
+    await prisma.movies.create({ // Insere um novo filme no banco de dados INSERT
       data: {
         title: title,
         genre_id: genre_id,
@@ -44,13 +46,43 @@ app.post('/movies', async(req, res) => {
         oscar_count: oscar_count,
         release_date: new Date(release_date)
       }
-  });
+    });
   } catch (error) {
     return res.status(500).send({ error: 'Erro ao cadastrar o filme.' });
   }
-  
+
   res.status(201).send({ message: 'Filme criado com sucesso!' });
 });
+
+// ATUALIZAR UM FILME EXISTENTE
+app.put('/movies/:id', async (req, res) => {
+
+  try {
+    const id = Number(req.params.id);
+
+    const movie = await prisma.movies.findUnique({ // Verifica se o filme existe no banco de dados
+      where: { id }
+    });
+
+    if (!movie) {
+      return res.status(404).send({ message: 'Filme não encontrado.' });
+    }
+
+    const data = { ...req.body }; // Obtém os dados do corpo da requisição
+    data.release_date = data.release_date ? new Date(data.release_date) : undefined;
+
+    await prisma.movies.update({ // Atualiza um filme no banco de dados UPDATE
+      where: { id }, // Atualiza o filme com o ID fornecido na URL
+      data: data // Dados a serem atualizados
+    });
+  } catch (error) {
+    return res.status(500).send({ error: 'Erro ao atualizar o filme.' });
+  }
+
+  res.status(200).send('Dados atualizados com sucesso!!!');
+
+});
+
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta http://localhost:${port}`);
