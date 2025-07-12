@@ -8,7 +8,7 @@
   "paths": {
     "/movies": {
       "get": {
-        "tags": ["Movies"],
+        "tags": ["Movie"],
         "summary": "Listar todos os filmes",
         "responses": {
           "200": {
@@ -25,6 +25,7 @@
         }
       },
       "post": {
+        "tags": ["Movie"],
         "summary": "Criar um novo filme",
         "requestBody": {
           "required": true,
@@ -43,6 +44,7 @@
     },
     "/movies/{id}": {
       "put": {
+        "tags": ["Movie"],
         "summary": "Atualizar um filme existente",
         "parameters": [
           {
@@ -67,6 +69,7 @@
         }
       },
       "delete": {
+        "tags": ["Movie"],
         "summary": "Deletar um filme existente",
         "parameters": [
           {
@@ -85,6 +88,7 @@
     },
     "/movies/{genreName}": {
       "get": {
+        "tags": ["Movie"],
         "summary": "Filtrar filmes por gênero",
         "parameters": [
           {
