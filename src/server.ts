@@ -1,5 +1,5 @@
 import express from 'express';
-import { PrismaClient } from './generated/prisma';
+import { PrismaClient } from '@prisma/client'; // Importa o Prisma Client para interagir com o banco de dados
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../swagger.json';
 
