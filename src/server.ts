@@ -1,11 +1,14 @@
 import express from 'express';
 import { PrismaClient } from './generated/prisma';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from '../swagger.json';
 
 const port = 3000;
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json()); // Middleware para interpretar JSON no corpo das requisições
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // Configuração do Swagger para documentação da API
 
 // APRESENTAR OS FILMES CADASTRADOS
 app.get('/movies', async (req, res) => {
@@ -109,32 +112,40 @@ app.delete('/movies/:id', async (req, res) => {
 
 // FILTRO POR GÊNERO
 app.get('/movies/:genreName', async (req, res) => {
-  const genreName = req.params.genreName;
 
-  try{
+  try {
+
+    const genreName = req.params.genreName;
+
     const moviesFilteredByGenre = await prisma.movies.findMany({
-    include: { // Inclui as relações com os gêneros e idiomas
-      genres: true,
-      languages: true
-    },
+      include: { // Inclui as relações com os gêneros e idiomas
+        genres: true,
+        languages: true
+      },
 
-    where: {
-      genres: {
-        name: {
-          equals: genreName, // Filtra os filmes pelo nome do gênero
-          mode: 'insensitive' // Ignora diferenças entre maiúsculas e minúsculas
+      where: {
+        genres: {
+          name: {
+            equals: genreName, // Filtra os filmes pelo nome do gênero
+            mode: 'insensitive' // Ignora diferenças entre maiúsculas e minúsculas
+          }
         }
       }
-    }
-  });
 
-  res.status(200).send(moviesFilteredByGenre);
-  
+    });
+
+    if (moviesFilteredByGenre.length === 0) {
+      return res.status(404).send({ message: 'Nenhum filme encontrado para o gênero.' });
+    }
+
+
+    res.status(200).send(moviesFilteredByGenre);
+
   } catch (error) {
     return res.status(500).send({ error: 'Erro ao filtrar os filmes por gênero.' });
   }
 });
- 
+
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta http://localhost:${port}`);

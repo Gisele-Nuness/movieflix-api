@@ -1,0 +1,157 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Movieflix API",
+    "version": "1.0.0",
+    "description": "API responsável por gerenciar os filmes do Movieflix"
+  },
+  "paths": {
+    "/movies": {
+      "get": {
+        "tags": ["Movies"],
+        "summary": "Listar todos os filmes",
+        "responses": {
+          "200": {
+            "description": "Lista de filmes retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Movie" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar um novo filme",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MovieInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Filme criado com sucesso" },
+          "409": { "description": "Já existe um filme com esse título" },
+          "500": { "description": "Erro ao cadastrar o filme" }
+        }
+      }
+    },
+    "/movies/{id}": {
+      "put": {
+        "summary": "Atualizar um filme existente",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MovieInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Filme atualizado com sucesso" },
+          "404": { "description": "Filme não encontrado" },
+          "500": { "description": "Erro ao atualizar o filme" }
+        }
+      },
+      "delete": {
+        "summary": "Deletar um filme existente",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Filme deletado com sucesso" },
+          "404": { "description": "Filme não encontrado" },
+          "500": { "description": "Erro ao deletar o filme" }
+        }
+      }
+    },
+    "/movies/{genreName}": {
+      "get": {
+        "summary": "Filtrar filmes por gênero",
+        "parameters": [
+          {
+            "name": "genreName",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filmes filtrados por gênero retornados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Movie" }
+                }
+              }
+            }
+          },
+          "404": { "description": "Nenhum filme encontrado para o gênero" },
+          "500": { "description": "Erro ao filtrar os filmes por gênero" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Movie": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "genre_id": { "type": "integer" },
+          "language_id": { "type": "integer" },
+          "oscar_count": { "type": "integer" },
+          "genres": { "$ref": "#/components/schemas/Genre" },
+          "languages": { "$ref": "#/components/schemas/Language" }
+        }
+      },
+      "MovieInput": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "release_date": { "type": "string", "format": "date" },
+          "genre_id": { "type": "integer" },
+          "language_id": { "type": "integer" },
+          "oscar_count": { "type": "integer" }
+        },
+        "required": ["title", "genre_id", "language_id", "release_date"]
+      },
+      "Genre": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
+        }
+      },
+      "Language": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
+        }
+      }
+    }
+  }
+}
